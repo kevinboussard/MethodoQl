@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<BugCollection version="3.0.1" sequence="0" timestamp="1444861402913" analysisTimestamp="1444861402929" release="">
+  <Project projectName="">
+    <Jar>C:\Users\kevin\Documents\NetBeansProjects\Calculatrice\build\classes</Jar>
+    <AuxClasspathEntry>C:\Users\kevin\Documents\NetBeansProjects\Calculatrice\lib\JUnit\junit-4.10.jar</AuxClasspathEntry>
+  </Project>
+  <BugInstance type="DM_DEFAULT_ENCODING" priority="1" rank="19" abbrev="Dm" category="I18N" instanceHash="e9b94ce1d2f242f30dd226d05ce55378" instanceOccurrenceNum="0" instanceOccurrenceMax="0">
+    <ShortMessage>Reliance on default encoding</ShortMessage>
+    <LongMessage>Found reliance on default encoding in calculatrice.Tool.keyboarding(): new java.util.Scanner(InputStream)</LongMessage>
+    <Class classname="calculatrice.Tool" primary="true">
+      <SourceLine classname="calculatrice.Tool">
+        <Message>In &lt;Unknown&gt;</Message>
+      </SourceLine>
+      <Message>In class calculatrice.Tool</Message>
+    </Class>
+    <Method classname="calculatrice.Tool" name="keyboarding" signature="()J" isStatic="false" primary="true">
+      <SourceLine classname="calculatrice.Tool"/>
+      <Message>In method calculatrice.Tool.keyboarding()</Message>
+    </Method>
+    <Method classname="java.util.Scanner" name="&lt;init&gt;" signature="(Ljava/io/InputStream;)V" isStatic="false" role="METHOD_CALLED">
+      <SourceLine classname="java.util.Scanner" start="563" end="564" startBytecode="0" endBytecode="43" sourcefile="Scanner.java" sourcepath="java/util/Scanner.java"/>
+      <Message>Called method new java.util.Scanner(InputStream)</Message>
+    </Method>
+    <SourceLine classname="calculatrice.Tool" startBytecode="7" endBytecode="7">
+      <Message>In &lt;Unknown&gt;</Message>
+    </SourceLine>
+  </BugInstance>
+  <BugCategory category="I18N">
+    <Description>Internationalization</Description>
+  </BugCategory>
+  <BugPattern type="DM_DEFAULT_ENCODING" abbrev="Dm" category="I18N">
+    <ShortDescription>Reliance on default encoding</ShortDescription>
+    <Details><![CDATA[
+
+<p> Found a call to a method which will perform a byte to String (or String to byte) conversion, and will assume that the default platform encoding is suitable. This will cause the application behaviour to vary between platforms. Use an alternative API and specify a charset name or Charset object explicitly.  </p>
+
+      ]]></Details>
+  </BugPattern>
+  <BugCode abbrev="Dm">
+    <Description>Utilisation d&apos;une m&#233;thode inutile</Description>
+  </BugCode>
+  <Errors errors="0" missingClasses="0"></Errors>
+  <FindBugsSummary timestamp="Thu, 15 Oct 2015 00:23:22 +0200" total_classes="3" referenced_classes="16" total_bugs="1" total_size="24" num_packages="1" java_version="1.8.0_25" vm_version="25.25-b02" cpu_seconds="6.61" clock_seconds="1.49" peak_mbytes="118.24" alloc_mbytes="885.50" gc_seconds="0.02" priority_1="1">
+    <FileStats path="calculatrice/&lt;Unknown&gt;" bugCount="1" size="24" bugHash="9f39d3814b85f34b1833425e993f42f8"/>
+    <PackageStats package="calculatrice" total_bugs="1" total_types="3" total_size="24" priority_1="1">
+      <ClassStats class="calculatrice.Calculatrice" sourceFile="&lt;Unknown&gt;" interface="false" size="13" bugs="0"/>
+      <ClassStats class="calculatrice.Function" sourceFile="&lt;Unknown&gt;" interface="false" size="5" bugs="0"/>
+      <ClassStats class="calculatrice.Tool" sourceFile="&lt;Unknown&gt;" interface="false" size="6" bugs="1" priority_1="1"/>
+    </PackageStats>
+    <FindBugsProfile>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassInfoAnalysisEngine" totalMilliseconds="227" invocations="353" avgMicrosecondsPerInvocation="643" maxMicrosecondsPerInvocation="18673" standardDeviationMircosecondsPerInvocation="1416"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.ClassDataAnalysisEngine" totalMilliseconds="151" invocations="354" avgMicrosecondsPerInvocation="428" maxMicrosecondsPerInvocation="989" standardDeviationMircosecondsPerInvocation="192"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FieldItemSummary" totalMilliseconds="84" invocations="16" avgMicrosecondsPerInvocation="5295" maxMicrosecondsPerInvocation="23621" standardDeviationMircosecondsPerInvocation="6593"/>
+      <ClassProfile name="edu.umd.cs.findbugs.util.TopologicalSort" totalMilliseconds="66" invocations="321" avgMicrosecondsPerInvocation="207" maxMicrosecondsPerInvocation="14897" standardDeviationMircosecondsPerInvocation="862"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FindNoSideEffectMethods" totalMilliseconds="58" invocations="16" avgMicrosecondsPerInvocation="3679" maxMicrosecondsPerInvocation="23126" standardDeviationMircosecondsPerInvocation="5879"/>
+      <ClassProfile name="edu.umd.cs.findbugs.OpcodeStack$JumpInfoFactory" totalMilliseconds="52" invocations="75" avgMicrosecondsPerInvocation="705" maxMicrosecondsPerInvocation="5460" standardDeviationMircosecondsPerInvocation="990"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.MethodGenFactory" totalMilliseconds="51" invocations="7" avgMicrosecondsPerInvocation="7306" maxMicrosecondsPerInvocation="49446" standardDeviationMircosecondsPerInvocation="17206"/>
+      <ClassProfile name="edu.umd.cs.findbugs.classfile.engine.bcel.JavaClassAnalysisEngine" totalMilliseconds="33" invocations="34" avgMicrosecondsPerInvocation="974" maxMicrosecondsPerInvocation="18048" standardDeviationMircosecondsPerInvocation="3110"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.NoteDirectlyRelevantTypeQualifiers" totalMilliseconds="28" invocations="16" avgMicrosecondsPerInvocation="1758" maxMicrosecondsPerInvocation="4847" standardDeviationMircosecondsPerInvocation="1733"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.OverridingEqualsNotSymmetrical" totalMilliseconds="23" invocations="16" avgMicrosecondsPerInvocation="1489" maxMicrosecondsPerInvocation="6538" standardDeviationMircosecondsPerInvocation="1901"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.FunctionsThatMightBeMistakenForProcedures" totalMilliseconds="23" invocations="16" avgMicrosecondsPerInvocation="1459" maxMicrosecondsPerInvocation="8503" standardDeviationMircosecondsPerInvocation="2164"/>
+      <ClassProfile name="edu.umd.cs.findbugs.detect.BuildStringPassthruGraph" totalMilliseconds="20" invocations="16" avgMicrosecondsPerInvocation="1270" maxMicrosecondsPerInvocation="8336" standardDeviationMircosecondsPerInvocation="2059"/>
+    </FindBugsProfile>
+  </FindBugsSummary>
+  <ClassFeatures></ClassFeatures>
+  <History></History>
+</BugCollection>

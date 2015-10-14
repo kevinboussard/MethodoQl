@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- You may freely edit this file. See commented blocks below for -->
+<!-- some examples of how to customize the build. -->
+<!-- (If you delete it and reopen the project it will be recreated.) -->
+<!-- By default, only the Clean and Build commands use this build script. -->
+<!-- Commands such as Run, Debug, and Test only use this build script if -->
+<!-- the Compile on Save feature is turned off for the project. -->
+<!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
+<!-- in the project's Project Properties dialog box.-->
+<project name="Calculatrice" default="junit" basedir=".">
+    <description>Builds, tests, and runs the project Calculatrice.</description>
+	
+	<!-- Project Structure -->
+	<property name="jdk.version" value="1.7" />
+	
+	<!-- Change the paths to your individual installation directories -->
+    <property name="checkstyle.home.dir" location="lib/checkstyle" />
+    <property name="findbugs.home.dir" value="lib/findbugs-3.0.1/" />
+    <property name="pmd.home.dir" value="lib/pmd-bin-5.4.0" />
+    <property name="lib.dir" location="${basedir}/lib" />
+    <property name="src.dir" location="${basedir}/src/calculatrice/" />
+	<property name="test.dir" location="${basedir}/test/calculatrice/" />
+    <property name="build.dir" location="${basedir}/build/classes/" />
+	<property name="build.test.dir" location="${basedir}/build/test/classes/" />
+    <property name="report.dir" location="${basedir}/report" />
+
+    <property name="report.checkstyle.dir" location="${report.dir}/checkstyle" />
+    <property name="report.junit.dir" location="${report.dir}/junit" />
+    <property name="report.findbugs.dir" location="${report.dir}/findbugs" />
+    <property name="report.pmd.dir" location="${report.dir}/pmd" />
+   
+    <property name="report.test.dir" location="${report.dir}/test" />
+	
+	<!-- Define the classpath which includes the junit.jar and the classes after compiling--> 
+	<path id="junit.class.path"> 
+		<pathelement location="${basedir}/lib/JUnit/junit-4.10.jar" /> 
+		<pathelement location="${build.dir}" /> 
+	</path> 
+	
+	
+    <target name="clean" description="Delete all generated files">
+        <delete dir="build/classes"/>
+		<delete dir="build/test/classes"/>
+        <delete file="build/jar/Project.jar"/>
+		<delete file="report"/>
+    </target>
+	
+	<!-- Compilation du projet Java -->
+	<target name="compile" depends="clean">
+		<mkdir dir="build/classes"/>
+		<mkdir dir="build/test/classes"/>
+		<javac srcdir="${src.dir}" destdir="build/classes" includeantruntime="false">
+			<classpath refid="junit.class.path" />
+		</javac>
+		<javac srcdir="${test.dir}" destdir="build/test/classes" includeantruntime="false">
+			<classpath refid="junit.class.path" />
+		</javac>
+	</target>	
+	
+    <!-- Génération de l'archive jar -->
+	<target name="jar" depends="compile">
+		<mkdir dir="build/jar" />
+		<jar destfile="build/jar/Project.jar" basedir="build/classes" />
+	</target>
+	
+	
+    <target name="findbugs" depends="compile" description="Run code analysis over code to check for problems.">
+	
+	<taskdef name="findbugs"
+                 classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
+                 classpath="${findbugs.home.dir}/lib/findbugs-ant.jar"
+        />
+		
+     <!-- Run FindBugs. -->
+	<mkdir dir="${report.findbugs.dir}" />
+	<findbugs home="${findbugs.home.dir}"
+			  workHard="true"
+			  output="xml:withMessages"
+			  outputFile="${report.findbugs.dir}/findbugs.xml"
+	>
+		<class location="${build.dir}" />
+		<auxClasspath>
+			<fileset file="${basedir}/lib/JUnit/junit-4.10.jar" />
+		</auxClasspath>
+	</findbugs>
+    </target>
+	
+    <!-- Run Junit -->
+    <target name="junit"
+            depends="findbugs"
+            description="Run all junit test cases."
+    >
+        <mkdir dir="${report.test.dir}" />
+
+        <junit printsummary="on" fork="true" haltonfailure="yes">
+
+            <classpath refid="junit.class.path" /> 
+			<classpath> 
+				<pathelement location="${build.test.dir}"/> 
+			</classpath> 
+            <formatter type="xml" />
+
+            <batchtest todir="${report.test.dir}">
+                <fileset dir="${test.dir}">
+					<include name="**/*Test.java" />
+                </fileset>
+            </batchtest>
+        </junit>
+    </target>
+	
+	
+	<!-- Run Checkfile -->
+    <target name="report.checkstyle" 
+		    depends="junit"
+			description="Generate a report of code convention violations.">
+			
+        <taskdef classpath="${checkstyle.home.dir}/checkstyle-6.11.2-all.jar"
+				 name="checkstyle" 
+        />
+
+        <mkdir dir="${report.checkstyle.dir}" />
+
+        <!-- run analysis-->
+        <checkstyle config="${checkstyle.home.dir}/sun_checks.xml"
+                    failureProperty="checkstyle.failure"
+                    failOnViolation="false"
+        >
+            <formatter type="xml" tofile="${report.checkstyle.dir}/checkstyle_report.xml" />
+            <fileset dir="${src.dir}" includes="**/*.java" />
+        </checkstyle>
+
+        <style in="${report.checkstyle.dir}/checkstyle_report.xml"
+               out="${report.checkstyle.dir}/checkstyle_report.html"
+               style="${checkstyle.home.dir}/contrib/checkstyle-noframes.xsl"
+        />
+    </target>
+	
+    <!-- Run PMD -->
+    <path id="pmd2.classpath">
+        <pathelement location="${build}" />
+        <fileset dir="${pmd.home.dir}/lib/">
+            <include name="*.jar" />
+        </fileset>
+    </path>
+    <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" 
+        classpathref="pmd2.classpath" />
+    <target name="report.pmd" depends="report.checkstyle">
+        <mkdir dir="${report.pmd.dir}" />
+        <pmd rulesetfiles="rulesets/favorites.xml">
+            <formatter type="xml" toFile="${report.pmd.dir}/pmd_report.xml" />
+            <fileset dir="${src.dir}">
+                <include name="*.java" />
+            </fileset>
+        </pmd>
+        <xslt in="${report.pmd.dir}/pmd_report.xml"
+              style="${pmd.home.dir}/etc/xslt/pmd-report-per-class.xslt"
+              out="${report.pmd.dir}/pmd_report.html"
+        />
+    </target>
+
+
+	
+	
+
+</project>
