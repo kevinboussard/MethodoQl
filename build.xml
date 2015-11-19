@@ -7,19 +7,20 @@
 <!-- the Compile on Save feature is turned off for the project. -->
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
-<project name="Calculatrice" default="junit" basedir=".">
+<project name="Calculatrice" default="checkstyle" basedir=".">
     <description>Builds, tests, and runs the project Calculatrice.</description>
 	
 	<!-- Project Structure -->
 	<property name="jdk.version" value="1.7" />
 	
 	<!-- Change the paths to your individual installation directories -->
-    <property name="checkstyle.home.dir" location="lib/checkstyle" />
-    <property name="findbugs.home.dir" value="lib/findbugs-3.0.1/" />
-    <property name="pmd.home.dir" value="lib/pmd-bin-5.4.0" />
+    <property name="checkstyle.home.dir" location="${basedir}/lib/checkstyle" />
+    <property name="findbugs.home.dir" value="${basedir}/lib/findbugs-3.0.1/" />
+    <property name="pmd.home.dir" value="${basedir}/lib/pmd-bin-5.4.0" />
     <property name="lib.dir" location="${basedir}/lib" />
     <property name="src.dir" location="${basedir}/src/calculatrice/" />
-	<property name="test.dir" location="${basedir}/test/calculatrice/" />
+	<property name="bin.dir" location="${basedir}/bin/" />
+	<property name="test.dir" location="${basedir}/test/" />
     <property name="build.dir" location="${basedir}/build/classes/" />
 	<property name="build.test.dir" location="${basedir}/build/test/classes/" />
     <property name="report.dir" location="${basedir}/report" />
@@ -41,17 +42,19 @@
     <target name="clean" description="Delete all generated files">
         <delete dir="build/classes"/>
 		<delete dir="build/test/classes"/>
-        <delete file="build/jar/Project.jar"/>
-		<delete file="report"/>
+        <delete dir="lib/jar"/>
+		<delete dir="report"/>
     </target>
 	
 	<!-- Compilation du projet Java -->
 	<target name="compile" depends="clean">
 		<mkdir dir="build/classes"/>
 		<mkdir dir="build/test/classes"/>
+		<!-- Compile Project -->
 		<javac srcdir="${src.dir}" destdir="build/classes" includeantruntime="false">
 			<classpath refid="junit.class.path" />
 		</javac>
+		<!-- Compile Test Project -->
 		<javac srcdir="${test.dir}" destdir="build/test/classes" includeantruntime="false">
 			<classpath refid="junit.class.path" />
 		</javac>
@@ -59,12 +62,12 @@
 	
     <!-- Génération de l'archive jar -->
 	<target name="jar" depends="compile">
-		<mkdir dir="build/jar" />
-		<jar destfile="build/jar/Project.jar" basedir="build/classes" />
+		<mkdir dir="${lib.dir}/jar" />
+		<jar destfile="${lib.dir}/jar/Project.jar" basedir="${build.dir}" />
 	</target>
 	
-	
-    <target name="findbugs" depends="compile" description="Run code analysis over code to check for problems.">
+	<!-- Utilisation FindBugs -->
+    <target name="findbugs" depends="jar" description="Run code analysis over code to check for problems.">
 	
 	<taskdef name="findbugs"
                  classname="edu.umd.cs.findbugs.anttask.FindBugsTask"
@@ -82,6 +85,7 @@
 		<auxClasspath>
 			<fileset file="${basedir}/lib/JUnit/junit-4.10.jar" />
 		</auxClasspath>
+		
 	</findbugs>
     </target>
 	
@@ -92,15 +96,13 @@
     >
         <mkdir dir="${report.test.dir}" />
 
-        <junit printsummary="on" fork="true" haltonfailure="yes">
+        <junit printsummary="on" fork="yes" haltonfailure="false">
 
             <classpath refid="junit.class.path" /> 
-			<classpath> 
-				<pathelement location="${build.test.dir}"/> 
-			</classpath> 
+			<classpath location="${build.test.dir}"/> 
             <formatter type="xml" />
 
-            <batchtest todir="${report.test.dir}">
+            <batchtest fork="yes" todir="${report.test.dir}">
                 <fileset dir="${test.dir}">
 					<include name="**/*Test.java" />
                 </fileset>
@@ -110,14 +112,13 @@
 	
 	
 	<!-- Run Checkfile -->
-    <target name="report.checkstyle" 
-		    depends="junit"
+    <target name="checkstyle" 
+			depends="junit"
 			description="Generate a report of code convention violations.">
 			
-        <taskdef classpath="${checkstyle.home.dir}/checkstyle-6.11.2-all.jar"
-				 name="checkstyle" 
-        />
-
+		<taskdef resource="com/puppycrawl/tools/checkstyle/ant/checkstyle-ant-task.properties"
+			     classpath="${checkstyle.home.dir}/checkstyle-6.12-all.jar"/>
+			
         <mkdir dir="${report.checkstyle.dir}" />
 
         <!-- run analysis-->
@@ -125,8 +126,9 @@
                     failureProperty="checkstyle.failure"
                     failOnViolation="false"
         >
-            <formatter type="xml" tofile="${report.checkstyle.dir}/checkstyle_report.xml" />
+            
             <fileset dir="${src.dir}" includes="**/*.java" />
+			<formatter type="xml" tofile="${report.checkstyle.dir}/checkstyle_report.xml" />
         </checkstyle>
 
         <style in="${report.checkstyle.dir}/checkstyle_report.xml"
@@ -135,29 +137,6 @@
         />
     </target>
 	
-    <!-- Run PMD -->
-    <path id="pmd2.classpath">
-        <pathelement location="${build}" />
-        <fileset dir="${pmd.home.dir}/lib/">
-            <include name="*.jar" />
-        </fileset>
-    </path>
-    <taskdef name="pmd" classname="net.sourceforge.pmd.ant.PMDTask" 
-        classpathref="pmd2.classpath" />
-    <target name="report.pmd" depends="report.checkstyle">
-        <mkdir dir="${report.pmd.dir}" />
-        <pmd rulesetfiles="rulesets/favorites.xml">
-            <formatter type="xml" toFile="${report.pmd.dir}/pmd_report.xml" />
-            <fileset dir="${src.dir}">
-                <include name="*.java" />
-            </fileset>
-        </pmd>
-        <xslt in="${report.pmd.dir}/pmd_report.xml"
-              style="${pmd.home.dir}/etc/xslt/pmd-report-per-class.xslt"
-              out="${report.pmd.dir}/pmd_report.html"
-        />
-    </target>
-
 
 	
 	
